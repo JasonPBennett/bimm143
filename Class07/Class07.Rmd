@@ -1,0 +1,159 @@
+---
+title: "Bioinformatics Class 7"
+author: "Jason Patrick Bennett"
+date: "April 24, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Functions: *Part Deux*
+
+Here I am going to revsit our function from class 6: **rescale**.
+
+```{r}
+source("http://tinyurl.com/rescale-R")
+```
+
+Lets see if we can use this function!
+
+```{r}
+rescale(1:10)
+```
+
+Looks good! Lets break it!
+
+```{r}
+#rescale( c(1:10, "break") )
+```
+
+Lets try the new **rescale2()** function.
+
+```{r}
+#rescale2( c(1:10, "brokenButBetter") )
+```
+
+## Write a NA checking function
+
+Here we write a new function to check for NAs in two inputs
+
+```{r}
+x <- c( 1, 2, NA, 3, NA)
+y <- c(NA, 3, NA, 3, 4)
+```
+
+
+```{r}
+is.na(x)
+```
+
+
+```{r}
+which (is.na(x) )
+```
+
+
+```{r}
+sum ( is.na(x) )
+```
+
+
+```{r}
+sum ( is.na(x) & is.na(y) )
+```
+
+
+```{r}
+which ( is.na(x) & is.na(y) )
+```
+
+
+```{r}
+both_na(x, y)
+```
+
+
+```{r}
+x <- c(NA, NA, NA)
+y1 <- c(1, NA, NA)
+y2 <- c(1, NA, NA, NA)
+
+#both_na(x, y2)
+```
+
+
+```{r}
+#both_na2(x, y2)
+```
+
+
+```{r}
+both_na3(x, y1)
+```
+
+
+## Another function example: gene intersection
+
+```{r}
+df1
+df2
+
+x <- df1$IDs
+y <- df2$IDs
+```
+
+
+```{r}
+x
+y
+```
+
+
+```{r}
+#intersect(x, y)
+
+x %in% y
+```
+
+
+```{r}
+y %in% x
+```
+
+
+Now we can access the genes we want with these indices!
+
+
+```{r}
+x[x %in% y]
+y[y %in% x]
+```
+
+
+Can make these columns of the same object with **cbind()**
+
+
+```{r}
+cbind( x[ x %in% y], y[ y %in% x] )
+```
+
+
+```{r}
+gene_intersect(x, y)
+```
+
+
+```{r}
+gene_intersect2(df1, df2)
+```
+
+
+Lets try the **merge()** function for this job
+
+
+```{r}
+merge(df1, df2, by="IDs")
+```
+
