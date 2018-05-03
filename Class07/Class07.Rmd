@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Functions: *Part Deux*
+## Functions: Part 2
 
 Here I am going to revsit our function from class 6: **rescale**.
 
