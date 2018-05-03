@@ -129,6 +129,95 @@ $(document).ready(function () {
 <div id="functions-part-deux" class="section level2">
 <h2>Functions: <em>Part Deux</em></h2>
 <p>Here I am going to revsit our function from class 6: <strong>rescale</strong>.</p>
+<pre class="r"><code>source(&quot;http://tinyurl.com/rescale-R&quot;)</code></pre>
+<p>Lets see if we can use this function!</p>
+<pre class="r"><code>rescale(1:10)</code></pre>
+<pre><code>##  [1] 0.0000000 0.1111111 0.2222222 0.3333333 0.4444444 0.5555556 0.6666667
+##  [8] 0.7777778 0.8888889 1.0000000</code></pre>
+<p>Looks good! Lets break it!</p>
+<pre class="r"><code>#rescale( c(1:10, &quot;break&quot;) )</code></pre>
+<p>Lets try the new <strong>rescale2()</strong> function.</p>
+<pre class="r"><code>#rescale2( c(1:10, &quot;brokenButBetter&quot;) )</code></pre>
+</div>
+<div id="write-a-na-checking-function" class="section level2">
+<h2>Write a NA checking function</h2>
+<p>Here we write a new function to check for NAs in two inputs</p>
+<pre class="r"><code>x &lt;- c( 1, 2, NA, 3, NA)
+y &lt;- c(NA, 3, NA, 3, 4)</code></pre>
+<pre class="r"><code>is.na(x)</code></pre>
+<pre><code>## [1] FALSE FALSE  TRUE FALSE  TRUE</code></pre>
+<pre class="r"><code>which (is.na(x) )</code></pre>
+<pre><code>## [1] 3 5</code></pre>
+<pre class="r"><code>sum ( is.na(x) )</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>sum ( is.na(x) &amp; is.na(y) )</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>which ( is.na(x) &amp; is.na(y) )</code></pre>
+<pre><code>## [1] 3</code></pre>
+<pre class="r"><code>both_na(x, y)</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>x &lt;- c(NA, NA, NA)
+y1 &lt;- c(1, NA, NA)
+y2 &lt;- c(1, NA, NA, NA)
+
+#both_na(x, y2)</code></pre>
+<pre class="r"><code>#both_na2(x, y2)</code></pre>
+<pre class="r"><code>both_na3(x, y1)</code></pre>
+<pre><code>## Found 2 NA's at position(s):2, 3</code></pre>
+<pre><code>## $number
+## [1] 2
+## 
+## $which
+## [1] 2 3</code></pre>
+</div>
+<div id="another-function-example-gene-intersection" class="section level2">
+<h2>Another function example: gene intersection</h2>
+<pre class="r"><code>df1</code></pre>
+<pre><code>##     IDs exp
+## 1 gene1   2
+## 2 gene2   1
+## 3 gene3   1</code></pre>
+<pre class="r"><code>df2</code></pre>
+<pre><code>##     IDs exp
+## 1 gene2  -2
+## 2 gene4  NA
+## 3 gene3   1
+## 4 gene5   2</code></pre>
+<pre class="r"><code>x &lt;- df1$IDs
+y &lt;- df2$IDs</code></pre>
+<pre class="r"><code>x</code></pre>
+<pre><code>## [1] &quot;gene1&quot; &quot;gene2&quot; &quot;gene3&quot;</code></pre>
+<pre class="r"><code>y</code></pre>
+<pre><code>## [1] &quot;gene2&quot; &quot;gene4&quot; &quot;gene3&quot; &quot;gene5&quot;</code></pre>
+<pre class="r"><code>#intersect(x, y)
+
+x %in% y</code></pre>
+<pre><code>## [1] FALSE  TRUE  TRUE</code></pre>
+<pre class="r"><code>y %in% x</code></pre>
+<pre><code>## [1]  TRUE FALSE  TRUE FALSE</code></pre>
+<p>Now we can access the genes we want with these indices!</p>
+<pre class="r"><code>x[x %in% y]</code></pre>
+<pre><code>## [1] &quot;gene2&quot; &quot;gene3&quot;</code></pre>
+<pre class="r"><code>y[y %in% x]</code></pre>
+<pre><code>## [1] &quot;gene2&quot; &quot;gene3&quot;</code></pre>
+<p>Can make these columns of the same object with <strong>cbind()</strong></p>
+<pre class="r"><code>cbind( x[ x %in% y], y[ y %in% x] )</code></pre>
+<pre><code>##      [,1]    [,2]   
+## [1,] &quot;gene2&quot; &quot;gene2&quot;
+## [2,] &quot;gene3&quot; &quot;gene3&quot;</code></pre>
+<pre class="r"><code>gene_intersect(x, y)</code></pre>
+<pre><code>##      [,1]    [,2]   
+## [1,] &quot;gene2&quot; &quot;gene2&quot;
+## [2,] &quot;gene3&quot; &quot;gene3&quot;</code></pre>
+<pre class="r"><code>gene_intersect2(df1, df2)</code></pre>
+<pre><code>##     IDs exp df2[df2$IDs %in% df1$IDs, &quot;exp&quot;]
+## 2 gene2   1                               -2
+## 3 gene3   1                                1</code></pre>
+<p>Lets try the <strong>merge()</strong> function for this job</p>
+<pre class="r"><code>merge(df1, df2, by=&quot;IDs&quot;)</code></pre>
+<pre><code>##     IDs exp.x exp.y
+## 1 gene2     1    -2
+## 2 gene3     1     1</code></pre>
 </div>
 
 
