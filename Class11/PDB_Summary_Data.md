@@ -7,23 +7,30 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Structural Bioinformatics
 
 Download the CSV file
 
-```{r}
+
+```r
 pdb.stats <- read.csv("Data Export Summary.csv")
 ```
 
 Let's find the totals and their associated percentages
 
-```{r}
+
+```r
 percent <- (pdb.stats$Total / sum(pdb.stats$Total) ) * 100
 names(percent) <- pdb.stats$Experimental.Method
 percent
+```
+
+```
+##               X-Ray                 NMR Electron Microscopy 
+##         89.51253323          8.72181096          1.50770286 
+##               Other        Multi Method 
+##          0.17006317          0.08788979
 ```
 
