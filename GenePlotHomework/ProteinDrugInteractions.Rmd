@@ -1,0 +1,45 @@
+---
+title: "A Method to Plot Protein Drug Interactions"
+author: "Jason Patrick Bennett"
+date: "May 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## BIMM 143: Protein Drug Interaction Method Homework
+
+This method will take in a gene name as a *string* and output the data related to drug interactions with that gene and the protein coded for by that gene. The data is pulled from the PDB database.
+
+**To use this method, you must have the bio3d package installed!**
+
+```{r}
+# Analyzes protein drug interactions by reading in protein PDB database information
+# and outputs a plot of the data
+readTrimAndPlot <- function(String) {
+  # Loads the necessary library into our workspace
+  library(bio3d)
+  
+  # Reads the pdb file
+  x1 <- read.pdb(String)
+  
+  # Trims the pdb file
+  x1.chainA <- trim.pdb(x1, chain="A", elety="CA")
+  
+  # Assigns the b portion of our trimmed file to x1.b
+  x1.b <- x1.chainA$atom$b
+  
+  # Plots the data from x1.b in a histogram
+  plotb3(x1.b, sse = x1.chainA, typ = "h", ylab = "Bfactor")
+}
+```
+
+
+Example code to show usage:
+
+```{r}
+readTrimAndPlot("4AKE")
+```
+

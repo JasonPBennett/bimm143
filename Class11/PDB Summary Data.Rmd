@@ -1,0 +1,29 @@
+---
+title: "Structurla Bioinformatics"
+author: "Jason Patrick Bennett"
+date: "May 8, 2018"
+output: html_document:
+  option:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Structural Bioinformatics
+
+Download the CSV file
+
+```{r}
+pdb.stats <- read.csv("Data Export Summary.csv")
+```
+
+Let's find the totals and their associated percentages
+
+```{r}
+percent <- (pdb.stats$Total / sum(pdb.stats$Total) * 100)
+names(percent) <- pdb.stats$Experimental.Method
+percent
+```
+
