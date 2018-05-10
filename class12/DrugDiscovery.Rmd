@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Drug Discovery
+# Drug Discovery
 
 First load the Bio3D package and download our desired structure
 
@@ -58,4 +58,51 @@ write.pdb(lig, "1hsg_ligand.pdb")
 
 Now use AutoDock to visualize the molecule
 
-**Question 3: Can we see 
+**Question 3: Can we see **
+
+## TODO: FINISH THIS
+
+
+
+
+
+
+Now lets inspect the docking results
+
+```{r}
+res <- read.pdb("all.pdbqt", multi = TRUE)
+
+write.pdb(res, "results.pdb")
+```
+
+
+Pulling this up in VMD with the 1hsg.pdb file, we can see both the protein and our results superimposed on eachother. This allows us to *qualitatively* determine if our assumptions were correct.
+
+---- Use VMD to compare the two ----
+
+**Question 4: How good do the docks look qualitatively? Is the Crystal Binding Mode reproduced? Is it the best conformation according to AutoDock Vina?**
+  They look good. ? ?
+
+They look good, but lets determine *quantitatively* if they really are good.
+
+```{r}
+res <- read.pdb("all.pdbqt", multi = TRUE)
+
+ori <- read.pdb("ligand.pdbqt")
+
+rmsd(ori, res)
+```
+
+
+**Question 5: How good are the docks quantitatively? Is the Crystal Binding Mode reproduced within 1 Angstrom RMSD for all atoms?**
+  Our first dock is within 1 Angstrom, however the rest fall short.     Therefore, our first dock is the best.
+  
+**Question 6: How would you determine the RMSD for heavy atoms only (i.e. non Hydrogren atoms)?**
+  
+  
+```{r}
+inds.res <- atom.select(res, string = "noh")
+
+rmsd(lig, res$xyz[,inds.res$xyz])
+```
+
