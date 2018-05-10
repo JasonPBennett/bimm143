@@ -55,3 +55,7 @@ write.pdb(prot, file = "1hsg_protein.pdb")
 write.pdb(lig, "1hsg_ligand.pdb")
 ```
 
+
+Now use AutoDock to visualize the molecule
+
+**Question 3: Can we see 
