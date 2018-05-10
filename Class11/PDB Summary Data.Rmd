@@ -27,3 +27,111 @@ names(percent) <- pdb.stats$Experimental.Method
 percent
 ```
 
+
+## Working With Bio3D
+
+Let's load the package
+
+```{r}
+# Already have this installed, so this is commented out (would need the first time)
+#install.packages("bio3D")
+
+# Load the package
+library(bio3d)
+```
+
+List the functions in the package
+
+```{r}
+# Lists the functions available in the package
+lbio3d()
+
+# Shows an example of the specified function
+example("plot.bio3d")
+```
+
+Let's read from PDB using our bio3D
+
+```{r}
+# Grabs the specified protein
+pdb <- read.pdb("1hsg")
+# Displays the information about the protein
+pdb
+```
+
+Now lets write out a C-Alpha atom only PDB file so that we can view it in VMD
+
+```{r}
+inds <- atom.select(pdb, "calpha")
+inds
+
+# This line just confirms that we've selected the right portion of the data
+pdb$atom[inds$atom,]
+
+# Actually trim the pdb
+ca.pdb <- trim.pdb(pdb, inds)
+
+# Write to a new pdb with only the C-Alpha
+pdb.selection <- write.pdb(ca.pdb, file = "CAlphaTrimmed.pdb")
+```
+
+
+## Multiple PDB Files
+
+```{r}
+ids <- c("1TND_B", "1AGR_A", "1TAG_A", "1GG2_A", "1KJY_A", "4G5Q_A")
+files <- get.pdb(ids, split = TRUE)
+```
+
+```{r}
+pdbs <- pdbaln(files, fit = TRUE, exefile = "C:/Users/thisi/Downloads/muscle.exe")
+```
+
+
+## Application on Adenylate Kinase
+
+```{r}
+aa <- get.seq("1ake_A")
+```
+
+Now do a Blast search. Much faster here than on BLAST website!
+ - The cache = TRUE means that it caches our results for faster           subseqent searches
+```{r, cache = TRUE}
+b <- blast.pdb(aa)
+```
+
+Now plot our information to see similarity: the first 12 are indicated as being the most similar to our sample.
+
+```{r}
+hits <- plot(b)
+```
+
+Now lets look at the 12 that our BLAST identified
+
+```{r}
+(hits$pdb.id)
+```
+
+Now lets allign the structures:
+
+```{r}
+pdbs <- pdbaln(files, fit = TRUE, exefile = "C:/Users/thisi/Downloads/muscle.exe")
+
+ids <- basename.pdb(pdbs$id)
+
+plot(pdbs, labels = ids)
+```
+
+Now lets use our PCA on the data:
+
+```{r}
+# Find invariant core
+core <- core.find(pdbs)
+
+# Superimpose all structures to core
+pdbs$xyz = pdbfit(pdbs, core)
+
+# Perform pca
+pc.xray <- pca(pdbs)
+```
+
