@@ -1,0 +1,57 @@
+---
+title: "Drug Interactions"
+author: "Jason Patrick Bennett"
+date: "May 10, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Drug Discovery
+
+First load the Bio3D package and download our desired structure
+
+```{r}
+# Load the package
+library(bio3d)
+
+# Retrieve the HIV-1 Protease PDB file
+file.name <- get.pdb("1hsg")
+
+# Save the file to the variable 'hiv'
+hiv <- read.pdb(file.name)
+
+# Quick look at the object
+hiv
+```
+
+**Question 1: What is the name of the two non-protein resid values?**
+  Water (HOH) and MK1
+  
+**Question 2: What does resid correspond to and how would we get a listing of all residue values in this structure?**
+  The position within the 1HSG where these things exist. You could get   a list of all the residue values by using: "hiv$atom$resid"
+  
+  
+Now lets trim the file to make it easier to use for our data analysis
+
+```{r}
+# Select only the protein
+prot <- trim.pdb(hiv, "protein")
+
+# Select only the ligand (or the drug)
+lig <- trim.pdb(hiv, "ligand")
+```
+
+
+And lets take these trimmed sections and create new pdb files from them
+
+```{r}
+# Create the protein file
+write.pdb(prot, file = "1hsg_protein.pdb")
+
+# Create the ligand file
+write.pdb(lig, "1hsg_ligand.pdb")
+```
+
