@@ -1,0 +1,164 @@
+---
+title: "class13"
+author: "Jason Patrick Bennett"
+date: "May 15, 2018"
+output:
+  html_document:
+    keep_md: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Identifying SNP's in a Population
+
+Lets analyze SNP's from the Mexican-American population in Los Angeles:
+
+```{r}
+genotype <- read.csv("373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+```
+
+Now lets look at a table of the data:
+
+```{r}
+table(genotype)
+```
+
+Isolate the data that we need from the table:
+
+```{r}
+genotype.summary <- table(genotype[,2])
+genotype.summary
+```
+
+Find the proportion of each genotype:
+
+```{r}
+genotype.summary/nrow(genotype) * 100
+```
+
+
+
+
+## RNA Seq
+
+Look more closely at sample: HG00109 (M) with genotype G|G
+
+**Jetstream IP: 129.114.16.25**
+
+Side-note on Fastq quality scores
+
+```{r}
+#install.packages("seqinr")
+#install.packages("gtools")
+
+# Sample read
+library(seqinr)
+library(gtools)
+phred <- asc( s2c("DDDDCDEDCDDDDBBDDDCC@")) - 33
+phred
+
+# The Probability of the base being incorrect
+prob <- 10**(-phred/10)
+prob
+```
+
+
+
+## RNA-Seq Population Scale Analysis
+
+Now lets analyze a text file of the reads from RNA-Seq (~230 samples or People)
+
+```{r}
+expr <- read.table("https://bioboot.github.io/bimm143_S18/class-material/
+rs8067378_ENSG00000172057.6.txt")
+```
+
+Look at data:
+
+```{r}
+table(expr$geno)
+```
+
+How many patients?
+
+```{r}
+nrow(expr)
+```
+
+Summary of the data might be insightful
+
+```{r}
+summary(expr)
+summary( expr$exp[ (expr$geno == "G/G")])
+summary( expr$exp[ (expr$geno == "A/A")])
+summary( expr$exp[ (expr$geno == "A/G")])
+```
+
+
+Now lets plot the data
+
+```{r}
+p <- boxplot(exp ~ geno, data = expr, notch = TRUE)
+```
+
+```{r}
+plot(expr$geno, expr$exp)
+```
+
+
+Now lets try GGPlot:
+
+```{r}
+library(ggplot2)
+ggplot(expr, aes(geno, exp)) + geom_boxplot()
+```
+
+```{r}
+ggplot(expr, aes(exp, fill = geno)) + geom_density(alpha = 0.2)
+```
+
+And finally, the fanciest graph!
+
+```{r}
+ggplot(expr, aes(geno, exp, fill=geno)) + 
+  geom_boxplot(notch=TRUE, outlier.shape = NA) + 
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Extra Practice --- IGNORE ---
+
+
+
+Now lets find how many subjects were homozygous G/G (the asthma variant):
+
+```{r}
+bp <- (genotype$Genotype..forward.strand.)
+```
+
+Now lets isolate the data that we need:
+
+```{r}
+levels(bp)
+```
+
+We can see that the "G|G" that we want is the 4th level!
+
+```{r}
+
+```
+
