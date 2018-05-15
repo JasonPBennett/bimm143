@@ -1,0 +1,89 @@
+---
+title: "GenePlotHomework"
+author: "Jason Patrick Bennett"
+date: "May 5, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Gene Plotting Using Hierarchical Clustering
+
+In this assignment, we will: take three genes and develop our own methods to read the data regarding the genes from a database, trim the data to allow us to analyze the genes and their associated expression levels in more depth, and finally plot the data to better visualize the effects the drug being tested had on the B-Factor levels of the proteins from each gene.
+
+```{r}
+# The Bio3d library that contains the tools needed for our data analysis
+library(bio3d)
+```
+
+
+The genes listed within the code are just the ones that we are currently interested in, however the string could be replaced with any valid gene name, and you would get similar results.
+
+```{r}
+# The samples genes we were interested in.
+gene1 <- "4AKE"
+gene2 <- "1AKE"
+gene3 <- "1E4Y"
+```
+
+
+This method will prepare our data in a similar way to our trimData function above, however it will also plot using a Histogram to allow us to more easy spot trends, differences, or similarities in our B-Factor data.
+
+```{r}
+# This prepares our data like the above trimData function, then it plots the data from the specified gene on a Histogram.
+readAndTrim <- function(String) {
+  # Reads the pdb file
+  x1 <- read.pdb(String)
+  
+  # Trims the pdb file
+  x1.chainA <- trim.pdb(x1, chain="A", elety="CA")
+}
+```
+
+
+This stores our trimmed pdb file and then creates a new variable that holds our B-Factor observations.
+
+```{r}
+# Store the data
+s1 <- readAndTrim(gene1)
+s1.b <- s1$atom$b
+
+s2 <- readAndTrim(gene2)
+s2.b <- s2$atom$b
+
+s3 <- readAndTrim(gene3)
+s3.b <- s3$atom$b
+```
+
+
+With our methods defined and our genes selected, we can now call the readTrimAndPlot() method to visualize the data. If we wanted to analyze more than three genes, we would simply define more genes at the top of the file and call readTrimAndPlot() on more subsequent s# variables to produce more graphs.
+
+```{r}
+# Plot of kinase with drug
+plot.s1 <- plotb3(s1.b, sse = s1, typ = "h", ylab = "Bfactor")
+
+# Plot of kinase no drug
+plot.s2 <- plotb3(s2.b, sse = s2, typ = "h", ylab = "Bfactor")
+
+# Plot of kinase with drug
+plot.s3 <- plotb3(s3.b, sse = s3, typ = "h", ylab = "Bfactor")
+```
+
+
+We will now use our trimData() method to prepare our data for our Hierarchical Clustering. We need to select the data that we would like to group together, then use rBind() to bind the data together by rows into a vector. We then use the distance method to find the Euclidian Distance between our data points. Finally, we apply the Hierarchical Clustering to our data and save our results in the variable "hc".
+
+```{r}
+# This line rowBinds the trimmed data, then finds the Euclidian Distance between the data points, and then applies Hierarchical Clutering to variable hc.
+
+hc <- hclust( dist( rbind(s1.b, s2.b, s3.b) ) )
+```
+
+
+Finally, we can plot our "hc" to see a Dendrogram that will directly compare our different genes data and their similarities or differences.
+
+```{r}
+# This plots the data from the Hierarchical Clustering
+plot(hc, xlab="Genes")
+```
