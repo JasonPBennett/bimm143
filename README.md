@@ -1,8 +1,8 @@
-## Bioinformatics Class BIMM-143
+# Bioinformatics Class BIMM-143
 
 This is my repository for my Bioinformatics class from UC San Diego in S18.
 
-# Index of Material
+## Index of Material
 
 Class5 - Basic Data Exploration and Visualization in R
 
