@@ -86,8 +86,6 @@ Pulling this up in VMD with the 1hsg.pdb file, we can see both the protein and o
 They look good, but lets determine *quantitatively* if they really are good.
 
 ```{r}
-res <- read.pdb("all.pdbqt", multi = TRUE)
-
 ori <- read.pdb("ligand.pdbqt")
 
 rmsd(ori, res)
