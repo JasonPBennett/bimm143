@@ -1,0 +1,238 @@
+---
+title: "class15"
+author: "Jason Patrick Bennett"
+date: "May 22, 2018"
+output: 
+  html_document:
+    keep_md: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pathway Analysis
+
+Lets first import our data:
+
+```{r}
+library(DESeq2)
+
+metaFile <- "data/GSE37704_metadata.csv"
+countFile <- "data/GSE37704_featurecounts.csv"
+```
+
+Format our Metadata:
+
+```{r}
+colData <- read.csv(metaFile, row.names = 1)
+head(colData)
+```
+
+Now lets format our Countdata:
+
+```{r}
+countData <- read.csv(countFile, row.names = 1)
+head(countData)
+```
+
+This "length" column in our data is out of place. We need to strip it from our data:
+
+```{r}
+countData <- as.matrix(countData[,-1])
+head(countData)
+```
+
+Now we have the right number of columns, however, we see a lot of 0's included in the above dataset. We should get rid of those, as their inclusion would add nothing of value to our overall data:
+
+```{r}
+countData <- countData[rowSums(countData)>1, ]
+head(countData)
+```
+
+Okay, now we are ready to create the DESeqDataSet object that will be used as input for our DESeq() function (Similar to the process done in the "class14" project):
+
+```{r, cache=TRUE}
+dds <- DESeqDataSetFromMatrix(countData = countData,
+                              colData = colData,
+                              design = ~condition)
+
+dds <- DESeq(dds)
+```
+
+Lets check what we've created:
+
+```{r}
+dds
+```
+
+So now we have the required object; lets get results for our HoxA1 knockdown versus the control siRNA (labeled as "hoxa1_kd" and "control_sina" in our colData metaFile):
+
+```{r}
+res <- results(dds, contrast = c("condition", "hoxa1_kd", "control_sirna"))
+
+# Reorder the results by p-value
+res <- res[order(res$pvalue),]
+summary(res)
+```
+
+We have results using the Ensembl annotations, however we will need to swap to Entrez gene IDs. Let's convert them now:
+
+```{r}
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+
+columns(org.Hs.eg.db)
+```
+
+And now the actual mapping:
+
+```{r}
+res$symbol <- mapIds(org.Hs.eg.db,
+                     keys = row.names(res),
+                     column = "SYMBOL",
+                     keytype = "ENSEMBL",
+                     multiVals = "first")
+
+res$entrez <- mapIds(org.Hs.eg.db,
+                     keys = row.names(res),
+                     column = "ENTREZID",
+                     keytype = "ENSEMBL",
+                     multiVals = "first")
+
+res$name <- mapIds(org.Hs.eg.db,
+                   keys = row.names(res),
+                   column = "GENENAME",
+                   keytype = "ENSEMBL",
+                   multiVals = "first")
+
+head(res, 10)
+```
+
+
+
+## Pathway Analysis
+
+Here we use the gage package for pathway analysis. Once we hae a list of enriched  pathways, we're going to use the pathview package to draw pathway diagrams, shading molecules in the pathway by their degree of up/down regulation.
+
+### KEGG pathways
+
+```{r}
+# source("http://bioconductor.org/biocLite.R")
+
+# biocLite( c("pathview", "gage", "gageData"))
+```
+
+Now lets load the packages:
+
+```{r}
+library(pathview)
+library(gage)
+library(gageData)
+
+data(kegg.sets.hs)
+data(sigmet.idx.hs)
+
+kegg.sets.hs <- kegg.sets.hs[sigmet.idx.hs]
+head(kegg.sets.hs, 3)
+```
+
+The gage() function requires a named vector of fold changes. We should generate that now:
+
+```{r}
+foldchanges <- res$log2FoldChange
+names(foldchanges) <- res$entrez
+head(foldchanges)
+```
+
+Now we can run the pathway analysis. We should check the function of the gage() function by looking at the ?gage help page.
+
+```{r}
+keggres <- gage(foldchanges, gsets = kegg.sets.hs, same.dir = TRUE)
+
+attributes(keggres)
+```
+
+So we can see that we have a list object. It has three elements (greater, less, and stats). Lets use the $ to access the specific elements that we are interested in:
+
+```{r}
+head(keggres$greater)
+```
+
+```{r}
+head(keggres$less)
+```
+
+These are data matrices with gene sets as rows sorted by p-value. Lets look at both up(greater), down(less), and statistics by using the head() with the lapply() function.
+
+```{r}
+lapply(keggres, head)
+```
+
+Now lets filter the results to extract the top 5 upregulated pathways, then extract just the IDs from those:
+
+```{r}
+pathways <- data.frame(id = rownames(keggres$greater), keggres$greater)
+head(pathways)
+```
+
+Now lets use the pathview() function to make a pathway plot:
+
+```{r}
+pathview(gene.data = foldchanges, pathway.id = "hsa04110")
+```
+
+Lets generate a PDF graph of our results:
+
+```{r}
+pathview(gene.data = foldchanges, pathway.id = "hsa04110")
+```
+
+Now lets pull out the top 5 upregulated pathways, and then pull out only the IDs:
+
+```{r, warning=FALSE}
+keggrespathways <- rownames(keggres$greater)[1:5]
+
+keggresids <- substr(keggrespathways, start = 1, stop = 8)
+keggresids
+```
+
+Now lets pass these IDs in keggresids to the pathview() function to draw plots for all the top 5 pathways:
+
+```{r, warning=FALSE}
+pathview(gene.data = foldchanges, pathway.id = keggresids, species = "hsa")
+```
+
+We can check the generated graphs in our Files pane on the right.
+
+
+## Gene Ontology (GO)
+
+We can do a similar procedure with gene ontology:
+
+```{r}
+data(go.sets.hs)
+data(go.subs.hs)
+gobpsets <- go.sets.hs[go.subs.hs$BP]
+
+gobpres <- gage(foldchanges, gsets = gobpsets, same.dir = TRUE)
+
+lapply(gobpres, head)
+```
+
+
+
+## Reactome Pathways Analysis
+
+To use the Reactome package, we first need to generate a plain text file containing the significant genes at the 0.05 level:
+
+```{r}
+sig_genes <- res[res$padj <= 0.05 & !is.na(res$padj), "symbol"]
+print(paste("Total number of significant genes:", length(sig_genes)))
+```
+
+Now write this as a table to create the significant_genes.txt file. Then, upload this to the Reactome.org website to explore our data visually.
+
+```{r}
+write.table(sig_genes, file = "significant_genes.txt", row.names = FALSE, col.names = FALSE, quote = FALSE)
+```
