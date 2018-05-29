@@ -1,0 +1,161 @@
+---
+title: "Transposon Mutagenesis"
+author: "Jason Patrick Bennett"
+date: "May 24, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Transposon Mutagenesis
+
+First lets install the packages that we will need: **tidyverse**
+
+(use *install.packages("tidyverse")* if it is not already installed)
+
+```{r}
+# Load the package
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(readr)
+```
+
+Now lets load the file with the experimental results from our TnSeq experiment:
+
+```{r}
+exp_data <- read.csv("data/Experimental_results.csv")
+head(exp_data)
+```
+
+As we can see, this table has several columns. The column "Strain" shows whcih strain was used in the experiment. "Environment" shows conditions in which microorganisms were propagated. Columns
+
+Lets remove our column X from our data:
+
+```{r}
+exp_data <- select(exp_data, -X)
+head(exp_data)
+```
+
+More select function practice:
+
+```{r}
+Mut_str_env <- select(exp_data, Mut_ID, Strain, Environment)
+head(Mut_str_env)
+```
+
+Now that we understand select(), lets get ready for plotting.
+
+We are going to use the ggplot2 function. Therefor, lets try to modify the data to extract the time and the frequencies so that we can use it in ggplot2. We see that the time is contained in the name of the columns, however, we need to extract the times as entries in a column to plot against the frequencies.
+
+There is a function called "gather" that will do this for us:
+
+```{r}
+exp_rearranged <- gather(exp_data, Generation, Frequency, H_0:H_96)
+head(exp_rearranged)
+```
+
+We have the columns that we wanted, however, our times are now listed as characters instead of times. We should use the function *separate()* to split our data into an "H" column and the nummeric "Time" column:
+
+```{r}
+table_for_graph <- separate(exp_rearranged, Generation, into = c("H","Time"))
+head(table_for_graph)
+```
+
+Now lets remove our H column because we will not need it:
+
+```{r}
+table_for_graph <- select(table_for_graph, -H)
+head(table_for_graph)
+```
+
+Lets remove the NA data from our table:
+
+```{r}
+table_cleaned <- na.omit(table_for_graph)
+```
+
+And finally, lets convert our Time column into numerics:
+
+```{r}
+table_cleaned$Time <- as.numeric(table_cleaned$Time)
+head(table_cleaned)
+```
+
+This table is now ready to be used with *ggplot2()*!
+
+# Creating ggplot2 Graph
+
+We have two strains, so how can we plot both strains?
+
+One way would be to separate them first, but this isn't the optimal way. Instead, *ggplot2()* contains options to allow two plots to be presented side-by-side for better analysis.
+
+```{r}
+ggplot(table_cleaned) + geom_line(aes(Time, Frequency, group = BC_ID), alpha = 0.2, colour = "#000033") + facet_grid(.~Strain) + ggtitle("Barcode Trajectories") + theme(plot.title = element_text(hjust = 0.5)) + xlab("Time, Hours") + ylab("Log10(Barcode Frequency)")
+```
+
+We can see that in the LO13 strain, there is a beneficial mutation that is increasing fitness. Lets try to look at this mutation:
+
+```{r}
+mut34 <- filter(table_cleaned, table_cleaned$Mut_ID=="34")
+mut34
+```
+
+And lets plot again:
+
+```{r}
+ggplot(mut34) + geom_line(aes(Time, Frequency, group = BC_ID), alpha = 0.2, colour = "#000033") + facet_grid(.~Strain) + ggtitle("Barcode Trajectories") + theme(plot.title = element_text(hjust = 0.5)) + xlab("Time, Hours") + ylab("Log10(Barcode Frequency)")
+```
+
+We can see a large divide between the different data sets on the graph: those at the top represent high frequency and those at the bottom show a very low frequency. Because of the low frequency, we do not want to include this data in our overall analysis. We should filter out those results whose frequency falls below our heuristic threshold (lets say -5):
+
+```{r}
+mut34_f <- filter(mut34, mut34$Frequency>-5)
+mut34_f
+```
+
+```{r}
+ggplot(mut34_f) + geom_line(aes(Time, Frequency, group = BC_ID), alpha = 0.2, colour = "#000033") + facet_grid(.~Strain) + ggtitle("Barcode Trajectories") + theme(plot.title = element_text(hjust = 0.5)) + xlab("Time, Hours") + ylab("Log10(Barcode Frequency)")
+```
+
+Now lets examine a particular barcode that we're interested in. Also, it looks like something strange may be going in in Strain L013, so lets focus on the DivAnc data:
+
+```{r}
+BC_25361 <- filter(mut34_f, mut34_f$BC_ID=="25361", mut34_f$Strain=="DivAnc")
+BC_25361
+```
+
+Now lets plot the frequency of this barcode:
+
+```{r}
+BC_plot <- ggplot(BC_25361) +  aes(Time, Frequency, group = BC_ID) + geom_point(alpha = 0.2, colour = "#000033") + facet_grid(.~Strain) + ggtitle("BC_25361 Trajectory") + theme(plot.title = element_text(hjust = 0.5)) + xlab("Time, Hours") + ylab("Log10(Barcode Frequency)")
+
+BC_plot
+```
+
+We can clearly see a large increase in frequency as time passes, which indicates a clear increase in fitness from our mutation!
+
+Lets fit a line to these points to get a more accurate measurement of the increase in fitness:
+
+```{r}
+BC_plot_lm <- BC_plot + geom_smooth(se = FALSE, method = "lm")
+
+BC_plot_lm
+```
+
+```{r}
+regression_model <- lm(Frequency~Time, BC_25361)
+summary_data <- summary(regression_model)
+summary_data
+```
+
+```{r}
+Time <- summary_data$coefficients[2]
+Time
+
+Intercept <- summary_data$coefficients[1]
+Intercept
+```
+
