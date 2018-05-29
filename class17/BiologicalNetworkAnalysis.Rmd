@@ -1,0 +1,369 @@
+---
+title: "Biological Network Analysis"
+author: "Jason Patrick Bennett"
+date: "May 29, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Biological Network Analysis
+
+First we need to install some necessary packages:
+
+```{r}
+# CRAN packages
+# install.packages( c("igraph", "RColorBrewer"))
+
+# Bioconductor package
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("RCy3")
+
+library(RCy3)
+library(igraph)
+library(RColorBrewer)
+```
+
+The RCy3 package connects us to Cytoscape. Lets check to make sure our connection is working.
+
+(Need to have Cytoscape open for this to work):
+
+```{r}
+# library(RCy3)
+cwd <- demoSimpleGraph()
+```
+
+Looks good so far:
+
+```{r}
+layoutNetwork(cwd, 'force-directed')
+
+# Choose any other possible layouts e.g. :
+possible.layout.names <- getLayoutNames(cwd)
+
+# Test connection to Cytoscape
+ping(cwd)
+```
+
+We can see in Cytoscape that a network has been generated!
+
+Lets change the layout from within R:
+
+```{r}
+setVisualStyle(cwd, "Marquee")
+```
+
+To see all available styles, use:
+
+```{r}
+styles <- getVisualStyleNames(cwd)
+
+styles
+```
+
+Lets try some other styles just for fun:
+
+```{r}
+setVisualStyle(cwd, styles[13])
+# setVisualStyle(cwd, styles[3])
+```
+
+Pretty neat!
+
+Lets save this image:
+
+```{r}
+saveImage(cwd,
+          file.name = "demo",
+          image.type = "png",
+          h = 350)
+```
+
+```{r}
+library(knitr)
+include_graphics("./demo.png")
+```
+
+## Reading Metagenomics Data
+
+Lets read in a species co-occurence matrix (from Lima-Mendez et al. (2015))
+
+```{r}
+# read in the data
+prok_vir_co <- read.delim("./data/virus_prok_cor_abundant.tsv", stringsAsFactors = FALSE)
+
+# check our data
+head(prok_vir_co)
+```
+
+The data looks good, so lets convert our data into a network to send to Cytoscape for analysis. We can do this using *igraph*.
+
+```{r}
+g <- graph.data.frame(prok_vir_co, directed = FALSE)
+
+# the class of this object should be "igraph"
+class(g)
+```
+
+Now lets first try the default graph function:
+
+```{r}
+plot(g)
+```
+
+Well that's just awful!
+
+Lets try to clean this up using some of the options *igraph* gives us:
+
+```{r}
+plot(g, vertex.size = 3, vertex.label = NA)
+```
+
+NOTE: We can query and set vertex and edges using **V()** and **E()**:
+
+```{r}
+V(g)
+
+E(g)
+```
+
+We also have a **vertex.attributes()** and **edge.attributes()** function that query all vertex and edge elements in an *igraph* object.
+
+## Read in Taxonomic Classification
+
+Because our data was collected in a shotgun-sequencing style, we need to be able to differentiate between samples. We can do this by using known samples (in our case, bacteriophage sequences) and comparing our collected samples to known samples from BLAST. These known samples are contained within the two files that we will read in next:
+
+```{r}
+phage_id_affiliation <- read.delim("./data/phage_ids_with_affiliation.tsv")
+head(phage_id_affiliation)
+
+bac_id_affi <- read.delim("./data/prok_tax_from_silva.tsv")
+head(bac_id_affi)
+```
+
+Now we have data to compare our collected samples to!
+
+We now need to add this taxonomic data to our samples. The following code chunk is dense and was beyond the scope of the assignment, so I copied the code from Professor Grant.
+
+Code provided by Dr. Barry J. Grant, UCSD 2018:
+
+```{r}
+## Create our gene network 'genenet' for cytoscape
+genenet.nodes <- as.data.frame(vertex.attributes(g))
+
+## not all have classification, so create empty columns
+genenet.nodes$phage_aff <- rep("not_class", nrow(genenet.nodes))
+genenet.nodes$Tax_order <- rep("not_class", nrow(genenet.nodes))
+genenet.nodes$Tax_subfamily <- rep("not_class", nrow(genenet.nodes))
+
+for (row in seq_along(1:nrow(genenet.nodes))){
+  if (genenet.nodes$name[row] %in% phage_id_affiliation$first_sheet.Phage_id_network){
+    id_name <- as.character(genenet.nodes$name[row])
+    aff_to_add <- unique(subset(phage_id_affiliation,
+                                first_sheet.Phage_id_network == id_name,
+                                select = c(phage_affiliation,
+                                           Tax_order,
+                                           Tax_subfamily)))
+    genenet.nodes$phage_aff[row] <- as.character(aff_to_add$phage_affiliation)
+    genenet.nodes$Tax_order[row] <- as.character(aff_to_add$Tax_order)
+    genenet.nodes$Tax_subfamily[row] <- as.character(aff_to_add$Tax_subfamily)
+  }
+}
+```
+
+Now do the same for the prokaryotes:
+
+```{r}
+genenet.nodes$prok_king <- rep("not_class", nrow(genenet.nodes))
+genenet.nodes$prok_tax_phylum <- rep("not_class", nrow(genenet.nodes))
+genenet.nodes$prok_tax_class <- rep("not_class", nrow(genenet.nodes))
+
+for (row in seq_along(1:nrow(genenet.nodes))){
+  if (genenet.nodes$name[row] %in% bac_id_affi$Accession_ID){
+    aff_to_add <- unique(subset(bac_id_affi,
+                                Accession_ID == as.character(genenet.nodes$name[row]),
+                                select = c(Kingdom,
+                                           Phylum,
+                                           Class)))
+    
+    genenet.nodes$prok_king[row] <- as.character(aff_to_add$Kingdom)
+    genenet.nodes$prok_tax_phylum[row] <- as.character(aff_to_add$Phylum)
+    genenet.nodes$prok_tax_class[row] <- as.character(aff_to_add$Class)
+  }
+}
+```
+
+Now lets add the data related to the connections between the organisms, the edge data, and then prepare to send the nodes and edges to cytoscape using the **cyPlot()** function:
+
+```{r}
+genenet.edges <- data.frame(igraph::as_edgelist(g))
+names(genenet.edges) <- c("name.1", "name.2")
+
+genenet.edges$Weight <- igraph::edge_attr(g)[[1]]
+
+genenet.edges$name.1 <- as.character(genenet.edges$name.1)
+genenet.edges$name.2 <- as.character(genenet.edges$name.2)
+genenet.nodes$name <- as.character(genenet.nodes$name)
+
+ug <- cyPlot(genenet.nodes,genenet.edges)
+```
+
+# Send Network to Cytoscape using RCy3
+
+Now we send the network from R to Cytoscape!
+
+First, lets create our connection to Cytoscape:
+
+```{r}
+cy <- CytoscapeConnection()
+deleteAllWindows(cy)
+```
+
+All the previous demo networks should have been removed from the Cytoscape display after the above code-chunk was run.
+
+Now lets send our data to Cytoscape:
+
+```{r}
+cw <- CytoscapeWindow("Tara Oceans",
+                      graph = ug,
+                      overwriteWindow = TRUE)
+```
+
+We don't see anything in Cytoscape!
+
+This is because we still need to use the **displayGraph()** function:
+
+```{r}
+displayGraph(cw)
+layoutNetwork(cw)
+fitContent(cw)
+```
+
+Cytoscape should not display our graph, however it does not look very good.
+
+We will work on improving the quality of our data now.
+
+# Color Network by Prokaryotic Phylum
+
+We want to see how many different phylum of bacteria are in our network. Lets color our nodes according to Phylum to visualize this:
+
+```{r}
+families_to_color <- unique(genenet.nodes$prok_tax_phylum)
+families_to_color <- families_to_color[!families_to_color %in% "not_class"]
+node.color <- RColorBrewer::brewer.pal(length(families_to_color), "Set3")
+```
+
+Now lets use the **RColorBrewer** to color the nodes in Cytoscape:
+
+```{r}
+setNodeColorRule(cw,
+                 "prok_tax_phylum",
+                 families_to_color,
+                 node.color,
+                 "lookup",
+                 default.color = "#ffffff")
+```
+
+Again, lets visualize this in Cytoscape:
+
+```{r}
+displayGraph(cw)
+layoutNetwork(cw)
+fitContent(cw)
+```
+
+# Change Node Shapes to Show Virus or Prokaryote
+
+It would be helpful to be able to visually differentiate between virus nodes and prokaryote nodes. Lets set this now:
+
+```{r}
+shapes_for_nodes <- c("DIAMOND")
+
+phage_names <- grep("ph_",
+                    genenet.nodes$name,
+                    value = TRUE)
+
+setNodeShapeRule(cw,
+                 "label",
+                 phage_names,
+                 shapes_for_nodes)
+```
+
+Again, display the graph:
+
+```{r}
+displayGraph(cw)
+fitContent(cw)
+```
+
+Looks good so far!
+
+# Color Edges of Phage Nodes
+
+We can make sure that all of our viral data is marked correctly by targeting specific viral families. The main families we found are: *Podoviridae*, *Siphociridae*, and *Myoviridae*. Lets targe these:
+
+```{r}
+setDefaultNodeBorderWidth(cw, 5)
+
+families_to_color <- c(" Podoviridae",
+                       " Siphoviridae",
+                       " Myoviridae")
+
+node.color <- RColorBrewer::brewer.pal(length(families_to_color), "Dark2")
+
+setNodeBorderColorRule(cw,
+                       "Tax_subfamily",
+                       families_to_color,
+                       node.color,
+                       "lookup",
+                       default.color = "#000000")
+```
+
+And display:
+
+```{r}
+displayGraph(cw)
+fitContent(cw)
+```
+
+## Setup a Layout to Minimize Overlap of Nodes
+
+Our network currently is too cluttered to determine relationships between nodes. Lets alter the layout to minimize the overlap of nodes to better visualize the relationships:
+
+```{r}
+getLayoutNames(cw)
+```
+
+Now we can see our possible Layout names:
+
+```{r}
+getLayoutPropertyNames(cw, layout.name = "force-directed")
+```
+
+To see the internal values of the layout selected:
+
+```{r}
+getLayoutPropertyValue(cw, "force-directed", "defaultSpringLength")
+```
+
+Any of these properties can be viewed in a similar manner!
+
+Once we decide which properties we would like to alter, we can set them:
+
+```{r}
+setLayoutProperties(cw,
+                    layout.name = "force-directed",
+                    list(defaultSpringLength = 20,
+                         "numIterations" = 200))
+
+layoutNetwork(cw,
+              layout.name = "force-directed")
+
+fitContent(cw)
+```
+
+SIDENOTE: To see the actual names of the nodes, we have to go to our "Control Panel" and then look at our "Style" tab. Scoll down to find "Labels" and click on the middle column titled "Map". Select "shared names" from the drop-down menu and then select "Passthrough Mapping".
