@@ -1,0 +1,89 @@
+---
+title: "Find A Gene Project"
+author: "Jason Patrick Bennett"
+date: "May 28, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Generate a Heatmap From FASTA File
+
+First load the Bio3D package:
+
+```{r}
+library(bio3d)
+library(plyr)
+```
+
+Now I need to find the function that will read a FASTA file into R for me:
+
+(Use this to see all functions within the bio3D package: help(package="bio3D") )
+
+Looks like to read a FASTA formatted alignment file, we need: read.fasta()
+
+```{r}
+file <- "C:/Users/thisi/Desktop/R/findAGene/data/alignmentFASTA"
+ali <- read.fasta(file)
+```
+
+Now that we have the alignment, we can create a sequence alignment matrix:
+
+We will need to use the seqidentity() function:
+
+```{r}
+IDMatrix <- seqidentity(ali)
+
+IDMatrix
+```
+
+Now we have our data for a heatmap.
+
+Let's generate it!
+
+```{r}
+heatmap <- heatmap(IDMatrix, margins = c(12, 12))
+
+heatmap
+```
+
+## Find Similar Atomic Structures
+
+First lets create a consensus sequence from our alignment data:
+
+```{r}
+conSeq <- consensus(ali)
+
+conSeq <- conSeq$seq
+
+conSeq
+```
+
+Now lets use this consensus sequence to perform a BLAST search:
+
+```{r, cache=TRUE}
+blastResults <- blast.pdb(conSeq, database = "pdb")
+
+blastResults$hit.tbl
+```
+
+We can use a plot to visualize our results to see if we received any usable hits:
+
+```{r}
+blastPlot <- plot.blast(blastResults)
+
+blastPlot
+```
+
+Finally, let's see if we can pull information about our hits from our returned results:
+
+```{r}
+annotatedIDs <- pdb.annotate(blastResults$hit.tbl$subjectids)
+```
+
+
+These results don't look terribly promising. There is a correlation between my consensus sequence and the returned sequences, however, it appears to be a weak correlation.
+
+More analysis will have to be performed to come to any conclusions about my novel protein.
