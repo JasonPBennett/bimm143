@@ -23,3 +23,9 @@ Class12 - Drug Discovery: Techniques and Analysis
 Class13 - Genome Informatics and High Throughput Sequencing (NGS, RNA-Seq, and FastQC)
 
 Class14 - Transcriptomics and RNA-Seq Analysis
+
+Class15 - Genome Annotation and Using Functional Databases (KEGG and GO - Gene Ontology)
+
+Class16 - Transposons: A Sample Workflow
+
+Class17 - Biological Network Analysis
