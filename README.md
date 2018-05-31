@@ -12,7 +12,7 @@ Class7 - R Packages, working with CRAN, and working with Bioconductor
 
 Class8 - An Introduction to Machine Learning (Heirarchical Clustering)
 
-Class9 - Analyzing High Dimensional Datasets and Unsupervised Learning
+Class9 - [Analyzing High Dimensional Datasets and Unsupervised Learning](https://github.com/JasonPBennett/bimm143/blob/master/Class09/CancerDiagnostics.md)
 
 Class10 - Git and Version Control Basics
 
