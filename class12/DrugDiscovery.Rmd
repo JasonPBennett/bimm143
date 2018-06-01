@@ -2,7 +2,9 @@
 title: "Drug Interactions"
 author: "Jason Patrick Bennett"
 date: "May 10, 2018"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}
@@ -58,14 +60,7 @@ write.pdb(lig, "1hsg_ligand.pdb")
 
 Now use AutoDock to visualize the molecule
 
-**Question 3: Can we see **
-
-## TODO: FINISH THIS
-
-
-
-
-
+-- Attached Files --
 
 Now lets inspect the docking results
 
@@ -96,7 +91,7 @@ rmsd(ori, res)
   Our first dock is within 1 Angstrom, however the rest fall short.     Therefore, our first dock is the best.
   
 **Question 6: How would you determine the RMSD for heavy atoms only (i.e. non Hydrogren atoms)?**
-  
+  See the code below.
   
 ```{r}
 inds.res <- atom.select(res, string = "noh")
