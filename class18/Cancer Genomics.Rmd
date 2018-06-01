@@ -75,6 +75,6 @@ And load the library
 
 ```{r}
 library(GenomicDataCommons)
-library(maftools)
+# library(maftools)
 ```
 

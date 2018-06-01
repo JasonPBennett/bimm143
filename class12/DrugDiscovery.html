@@ -175,9 +175,7 @@ write.pdb(prot, file = &quot;1hsg_protein.pdb&quot;)
 # Create the ligand file
 write.pdb(lig, &quot;1hsg_ligand.pdb&quot;)</code></pre>
 <p>Now use AutoDock to visualize the molecule</p>
-<p><strong>Question 3: Can we see </strong></p>
-<div id="todo-finish-this" class="section level2">
-<h2>TODO: FINISH THIS</h2>
+<p>– Attached Files –</p>
 <p>Now lets inspect the docking results</p>
 <pre class="r"><code>res &lt;- read.pdb(&quot;all.pdbqt&quot;, multi = TRUE)
 
@@ -186,21 +184,18 @@ write.pdb(res, &quot;results.pdb&quot;)</code></pre>
 <p>—- Use VMD to compare the two —-</p>
 <p><strong>Question 4: How good do the docks look qualitatively? Is the Crystal Binding Mode reproduced? Is it the best conformation according to AutoDock Vina?</strong> They look good. ? ?</p>
 <p>They look good, but lets determine <em>quantitatively</em> if they really are good.</p>
-<pre class="r"><code>res &lt;- read.pdb(&quot;all.pdbqt&quot;, multi = TRUE)
-
-ori &lt;- read.pdb(&quot;ligand.pdbqt&quot;)
+<pre class="r"><code>ori &lt;- read.pdb(&quot;ligand.pdbqt&quot;)
 
 rmsd(ori, res)</code></pre>
 <pre><code>##  [1]  0.590 11.163 10.531  4.364 11.040  3.682  5.741  3.864  5.442 10.920
 ## [11]  4.318  6.249 11.084  8.929</code></pre>
 <p><strong>Question 5: How good are the docks quantitatively? Is the Crystal Binding Mode reproduced within 1 Angstrom RMSD for all atoms?</strong> Our first dock is within 1 Angstrom, however the rest fall short. Therefore, our first dock is the best.</p>
-<p><strong>Question 6: How would you determine the RMSD for heavy atoms only (i.e. non Hydrogren atoms)?</strong></p>
+<p><strong>Question 6: How would you determine the RMSD for heavy atoms only (i.e. non Hydrogren atoms)?</strong> See the code below.</p>
 <pre class="r"><code>inds.res &lt;- atom.select(res, string = &quot;noh&quot;)
 
 rmsd(lig, res$xyz[,inds.res$xyz])</code></pre>
 <pre><code>##  [1]  7.073  8.765  9.086  7.101  9.798  6.967  7.556  7.219  7.362  9.201
 ## [11]  7.295  7.213 10.257 10.840</code></pre>
-</div>
 </div>
 
 

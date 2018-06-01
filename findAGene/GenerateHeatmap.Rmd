@@ -2,7 +2,9 @@
 title: "Find A Gene Project"
 author: "Jason Patrick Bennett"
 date: "May 28, 2018"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}
@@ -25,7 +27,7 @@ Now I need to find the function that will read a FASTA file into R for me:
 Looks like to read a FASTA formatted alignment file, we need: read.fasta()
 
 ```{r}
-file <- "C:/Users/thisi/Desktop/R/findAGene/data/alignmentFASTA"
+file <- "C:/Users/thisi/Desktop/R/BIMM143_GitHub/findAGene/data/alignmentFASTA"
 ali <- read.fasta(file)
 ```
 
@@ -81,6 +83,8 @@ Finally, let's see if we can pull information about our hits from our returned r
 
 ```{r}
 annotatedIDs <- pdb.annotate(blastResults$hit.tbl$subjectids)
+
+annotatedIDs
 ```
 
 

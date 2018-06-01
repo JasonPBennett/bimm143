@@ -126,39 +126,3 @@ ggplot(expr, aes(geno, exp, fill=geno)) +
   geom_boxplot(notch=TRUE, outlier.shape = NA) + 
   geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.4)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Extra Practice --- IGNORE ---
-
-
-
-Now lets find how many subjects were homozygous G/G (the asthma variant):
-
-```{r}
-bp <- (genotype$Genotype..forward.strand.)
-```
-
-Now lets isolate the data that we need:
-
-```{r}
-levels(bp)
-```
-
-We can see that the "G|G" that we want is the 4th level!
-
-```{r}
-
-```
-
