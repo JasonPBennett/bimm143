@@ -4,28 +4,30 @@ This is my repository for my Bioinformatics class from UC San Diego in S18.
 
 ## Index of Material
 
-Class5 - Basic Data Exploration and Visualization in R
+*Introductory Material: Working With R*
 
-Class6 - Creating R Functions
+Class5 - [Basic Data Exploration and Visualization in R](https://github.com/JasonPBennett/bimm143/blob/master/class05/graphs.R)
 
-Class7 - R Packages, working with CRAN, and working with Bioconductor
+Class6 - [Creating R Functions](https://github.com/JasonPBennett/bimm143/blob/master/class06/functions.R)
 
-Class8 - An Introduction to Machine Learning (Heirarchical Clustering)
+Class7 - [R Packages, working with CRAN, and working with Bioconductor](https://github.com/JasonPBennett/bimm143/blob/master/Class07/Class07.md)
 
-Class9 - Analyzing High Dimensional Datasets and Unsupervised Learning
+*Using R and Other Tools for Bioinformatics Analysis*
 
-Class10 - Git and Version Control Basics
+Class8 - [An Introduction to Machine Learning (Heirarchical Clustering)](https://github.com/JasonPBennett/bimm143/blob/master/Class08/Class08.md)
 
-Class11 - Structural Bioinformatics: Analyzing Protein Structure and Function
+Class9 - [Analyzing High Dimensional Datasets and Unsupervised Learning](https://github.com/JasonPBennett/bimm143/blob/master/Class09/CancerDiagnostics.md)
 
-Class12 - Drug Discovery: Techniques and Analysis
+Class11 - [Structural Bioinformatics: Analyzing Protein Structure and Function](https://github.com/JasonPBennett/bimm143/tree/master/Class11)
 
-Class13 - Genome Informatics and High Throughput Sequencing (NGS, RNA-Seq, and FastQC)
+Class12 - [Drug Discovery: Techniques and Analysis]()
 
-Class14 - Transcriptomics and RNA-Seq Analysis
+Class13 - [Genome Informatics and High Throughput Sequencing (NGS, RNA-Seq, and FastQC)]()
 
-Class15 - Genome Annotation and Using Functional Databases (KEGG and GO - Gene Ontology)
+Class14 - [Transcriptomics and RNA-Seq Analysis]()
 
-Class16 - Transposons: A Sample Workflow
+Class15 - [Genome Annotation and Using Functional Databases (KEGG and GO - Gene Ontology)]()
 
-Class17 - Biological Network Analysis
+Class16 - [Transposons: A Sample Workflow]()
+
+Class17 - [Biological Network Analysis]()

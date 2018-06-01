@@ -9,7 +9,7 @@ output:
 
 
 
-## Functions: *Part Deux*
+## Functions: *Part Two*
 
 Here I am going to revsit our function from class 6: **rescale**.
 
