@@ -31,3 +31,7 @@ Class 15 - [Genome Annotation and Using Functional Databases (KEGG and GO - Gene
 Class 16 - [Transposons: A Sample Workflow](https://github.com/JasonPBennett/bimm143/blob/master/class16/Transposon_Mutagenesis.md)
 
 Class 17 - [Biological Network Analysis](https://github.com/JasonPBennett/bimm143/blob/master/class17/BiologicalNetworkAnalysis.md)
+
+## Class Website
+
+[BIMM-143: Spring 2018](https://bioboot.github.io/bimm143_S18/)
