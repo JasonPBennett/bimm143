@@ -111,7 +111,7 @@ First we need to calculate the point (dis)similarity as the Euclidian distance b
 
 ```{r}
 dist_matrix <- dist(x)
-dist_matrix
+head(dist_matrix)
 ```
 
 
