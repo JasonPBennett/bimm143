@@ -14,7 +14,7 @@ Class 7 - [R Packages, working with CRAN, and working with Bioconductor](https:/
 
 *Using R and Other Tools for Bioinformatics Analysis*
 
-Class 8 - [An Introduction to Machine Learning (Heirarchical Clustering)](https://github.com/JasonPBennett/bimm143/blob/master/Class08/Class08.md)
+Class 8 - [An Introduction to Machine Learning (Hierarchical Clustering)](https://github.com/JasonPBennett/bimm143/blob/master/Class08/Class08.md)
 
 Class 9 - [Analyzing High Dimensional Datasets and Unsupervised Learning](https://github.com/JasonPBennett/bimm143/blob/master/Class09/CancerDiagnostics.md)
 
